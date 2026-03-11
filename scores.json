@@ -1,18 +1,14 @@
 [
     {
-        "rank": 2,
-        "participant": "CCSPOET",
-        "accuracy": "61.21%",
-        "f1_macro": "58.84%",
-        "date": "2026-03-11"
-    }
-]
-[
-    {
-        "rank": 1,
         "participant": "Charlotte&Sara",
         "accuracy": "63.00%",
         "f1_macro": "62.04%",
+        "date": "2026-03-11"
+    },
+    {
+        "participant": "CCSPOET",
+        "accuracy": "61.21%",
+        "f1_macro": "58.84%",
         "date": "2026-03-11"
     }
 ]
