@@ -1,0 +1,29 @@
+name: Update Leaderboard
+
+on:
+  push:
+    paths:
+      - 'scores.json'  # This trigger only runs when you edit your scores
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-data: '3.10'
+
+      - name: Run update script
+        run: python leaderboard/update.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add leaderboard/README.md
+          git commit -m "Leaderboard update: ${{ github.actor }}" || exit 0
+          git push
