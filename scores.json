@@ -11,4 +11,10 @@
         "f1_macro": "58.84%",
         "date": "2026-03-11"
     }
+    {
+        "participant": "JOEL AND MAIRAME",
+        "accuracy": "96.00%",
+        "f1_macro": "96.31%",
+        "date": "2026-03-13"
+    }
 ]
