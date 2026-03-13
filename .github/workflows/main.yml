@@ -3,84 +3,29 @@ name: Update Leaderboard
 on:
   push:
     paths:
-      - 'submission/*.submission.csv'   # Expects files named: your_name.submission.csv
+      - 'scores.json'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-
+      contents: write  # This fixes the "exit code 128" permission issue
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # Full history needed for branching and merging
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.10' # Fixed the 'python-data' typo here
 
-      - name: Detect submission CSV
-        id: detect_csv
+      - name: Run update script
+        run: python leaderboard/update.py
+
+      - name: Commit and push changes
         run: |
-          # Find the CSV file that was pushed in the submission folder
-          CSV_FILE=$(git diff --name-only HEAD~1 HEAD -- 'submission/*.submission.csv' | head -n 1)
-
-          if [ -z "$CSV_FILE" ]; then
-            echo "No valid submission CSV detected. Exiting."
-            exit 1
-          fi
-
-          # Validate filename format: must be your_name.submission.csv
-          BASENAME=$(basename "$CSV_FILE")
-          if [[ ! "$BASENAME" =~ ^[a-zA-Z0-9_]+\.submission\.csv$ ]]; then
-            echo "Invalid filename: '$BASENAME'. File must be named your_name.submission.csv"
-            exit 1
-          fi
-
-          # Extract submitter name from filename (e.g. joel_mairame.submission.csv -> joel_mairame)
-          SUBMITTER_NAME="${BASENAME%.submission.csv}"
-
-          echo "csv_file=$CSV_FILE" >> $GITHUB_OUTPUT
-          echo "submitter_name=$SUBMITTER_NAME" >> $GITHUB_OUTPUT
-          echo "Detected submission: $CSV_FILE (submitter: $SUBMITTER_NAME)"
-
-      - name: Create submission branch
-        id: create_branch
-        run: |
-          BRANCH_NAME="submission/${{ steps.detect_csv.outputs.submitter_name }}-$(date +'%Y%m%d%H%M%S')"
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
-
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          git checkout -b "$BRANCH_NAME"
-          git push origin "$BRANCH_NAME"
-          echo "Created and pushed branch: $BRANCH_NAME"
-
-      - name: Install dependencies
-        run: pip install pandas
-
-      - name: Run leaderboard update script
-        run: python leaderboard/update.py --submission "${{ steps.detect_csv.outputs.csv_file }}"
-
-      - name: Commit leaderboard update to branch
-        run: |
           git add leaderboard/README.md
-          git commit -m "Leaderboard update: ${{ steps.detect_csv.outputs.submitter_name }} via ${{ steps.detect_csv.outputs.csv_file }}" || exit 0
-          git push origin "${{ steps.create_branch.outputs.branch_name }}"
-
-      - name: Merge submission branch into main
-        run: |
-          git checkout main
-          git merge --no-ff "${{ steps.create_branch.outputs.branch_name }}" \
-            -m "Merge submission from ${{ steps.detect_csv.outputs.submitter_name }} into main"
-          git push origin main
-
-      - name: Delete submission branch (cleanup)
-        if: success()
-        run: |
-          git push origin --delete "${{ steps.create_branch.outputs.branch_name }}"
-          echo "Cleaned up branch: ${{ steps.create_branch.outputs.branch_name }}"
+          git commit -m "Leaderboard update: ${{ github.actor }}" || exit 0
+          git push
