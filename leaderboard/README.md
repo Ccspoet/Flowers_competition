@@ -1,6 +1,6 @@
 # 🌻 Flowers Competition Leaderboard
 
-*Last updated: 2026-03-11 12:13 UTC*
+*Last updated: 2026-03-13 00:05 UTC*
 
 | Rank | Participant | Accuracy | F1 (macro) | Date |
 | :--- | :--- | :--- | :--- | :--- |
