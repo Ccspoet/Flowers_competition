@@ -3,7 +3,7 @@ name: Update Leaderboard
 on:
   pull_request_target:
     types: [opened, synchronize]
-    # Removed the 'paths' filter to ensure it triggers more reliably
+  workflow_dispatch:  # This adds a manual "Run" button
 
 jobs:
   evaluate:
