@@ -1,15 +1,13 @@
 name: Update Leaderboard
 
 on:
-  pull_request_target: # Using pull_request_target allows the bot to access secrets safely
+  pull_request_target:
     types: [opened, synchronize]
-    paths:
-      - 'submission.csv'
+  workflow_dispatch:  # This adds a manual "Run" button
 
 jobs:
   evaluate:
     runs-on: ubuntu-latest
-    # Required for the bot to be able to push changes back to your repo
     permissions:
       contents: write
 
@@ -17,7 +15,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
-          # This ensures we checkout the code from the Pull Request branch
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
 
@@ -27,21 +24,17 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: |
-          pip install pandas scikit-learn
+        run: pip install pandas scikit-learn
 
       - name: Run Evaluation
         env:
-          # This is the "Vault" connection
           FLOWER_ANSWERS: ${{ secrets.FLOWER_ANSWERS }} 
-        run: |
-          # Use github.event.pull_request.user.login to get the person who submitted
-          python evaluate.py ${{ github.event.pull_request.user.login }}
+        run: python evaluate.py ${{ github.event.pull_request.user.login }}
 
       - name: Commit and Push Leaderboard Update
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "Leaderboard Bot"
-          git add scores.json
-          # Only commit if the file actually changed to avoid errors
+          # CRITICAL: Added README.md here so the table actually updates on GitHub!
+          git add scores.json README.md
           git diff --quiet && git diff --staged --quiet || (git commit -m "🏆 Update leaderboard for ${{ github.event.pull_request.user.login }}" && git push)
