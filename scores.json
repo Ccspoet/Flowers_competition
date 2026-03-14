@@ -5,6 +5,11 @@
         "accuracy": 0.9221
     },
     {
+        "user": "BwiraC",
+        "f1_macro": 0.9006,
+        "accuracy": 0.908
+    },
+    {
         "user": "ahmedssow-ship-it",
         "f1_macro": 0.6229,
         "accuracy": 0.6407

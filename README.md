@@ -130,7 +130,8 @@ No manual updates needed — the rankings stay live and current.
 | Rank | User | F1-Macro | Accuracy |
 | :--- | :--- | :--- | :--- |
 | 1 | JHARILOVA | 0.9185 | 0.9221 |
-| 2 | ahmedssow-ship-it | 0.6229 | 0.6407 |
+| 2 | BwiraC | 0.9006 | 0.908 |
+| 3 | ahmedssow-ship-it | 0.6229 | 0.6407 |
 
 
 📁 **Repository Structure**
@@ -259,6 +260,7 @@ No manual updates needed — the rankings stay live and current.
 
 | Rank | User | F1-Macro | Accuracy |
 | :--- | :--- | :--- | :--- |
-| 1 | ahmedssow-ship-it | 0.6229 | 0.6407 |
+| 1 | JHARILOVA | 0.9185 | 0.9221 |
+| 2 | ahmedssow-ship-it | 0.6229 | 0.6407 |
 
 
