@@ -75,7 +75,7 @@ def run_grading(student_username):
 
     # 2. Load Student Submission
     try:
-        sub_df = pd.read_csv('submission.csv')
+        sub_df = pd.read_csv('submissions/submission.csv')
     except Exception as e:
         print(f"Error reading submission.csv: {e}")
         sys.exit(1)
