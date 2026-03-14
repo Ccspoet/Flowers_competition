@@ -3,7 +3,6 @@ name: Update Leaderboard
 on:
   pull_request_target:
     types: [opened, synchronize]
-  workflow_dispatch: 
 
 jobs:
   evaluate:
@@ -12,27 +11,27 @@ jobs:
       contents: write
 
     steps:
-      # 1. First, we checkout YOUR main branch (where the script and leaderboard are)
-      - name: Checkout Main Repository
+      # 1. Get your main branch code (evaluate.py, scores.json, etc.)
+      - name: Checkout Main
         uses: actions/checkout@v3
         with:
           ref: main
 
-      # 2. Next, we SPECIFICALLY download the student's submission.csv file
-      # This replaces YOUR submission.csv with THEIRS just for this run.
-      - name: Fetch Student Submission
+      # 2. Download the student's version of the files
+      - name: Checkout Student PR
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          path: student_files
+          path: student_submission
 
-      - name: Prepare Student File
+      # 3. Replace the 'main' submission.csv with the 'student' one
+      - name: Load Student Data
         run: |
-          if [ -f "student_files/submission.csv" ]; then
-            cp student_files/submission.csv ./submission.csv
-            echo "✅ Student submission.csv loaded."
+          if [ -f "student_submission/submission.csv" ]; then
+            cp student_submission/submission.csv ./submission.csv
+            echo "Submission found and loaded."
           else
-            echo "❌ Error: submission.csv not found in student PR."
+            echo "Error: submission.csv not found in the student's PR."
             exit 1
           fi
 
@@ -44,16 +43,15 @@ jobs:
       - name: Install dependencies
         run: pip install pandas scikit-learn
 
-      - name: Run Evaluation
+      - name: Run Grading
         env:
           FLOWER_ANSWERS: ${{ secrets.FLOWER_ANSWERS }} 
         run: python evaluate.py ${{ github.event.pull_request.user.login }}
 
-      - name: Commit and Push Leaderboard Update
+      - name: Push Results
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.email "action@github.com"
           git config --local user.name "Leaderboard Bot"
           git add scores.json README.md
-          # We push specifically to the main branch
-          git commit -m "🏆 Update leaderboard for ${{ github.event.pull_request.user.login }}" || echo "No changes to commit"
+          git commit -m "🏆 Score for ${{ github.event.pull_request.user.login }}" || echo "No changes"
           git push origin main
