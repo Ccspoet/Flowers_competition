@@ -3,7 +3,7 @@ name: Update Leaderboard
 on:
   pull_request_target:
     types: [opened, synchronize]
-  workflow_dispatch:  # This adds a manual "Run" button
+  workflow_dispatch: 
 
 jobs:
   evaluate:
@@ -12,11 +12,29 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout Repository
+      # 1. First, we checkout YOUR main branch (where the script and leaderboard are)
+      - name: Checkout Main Repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: main
+
+      # 2. Next, we SPECIFICALLY download the student's submission.csv file
+      # This replaces YOUR submission.csv with THEIRS just for this run.
+      - name: Fetch Student Submission
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: student_files
+
+      - name: Prepare Student File
+        run: |
+          if [ -f "student_files/submission.csv" ]; then
+            cp student_files/submission.csv ./submission.csv
+            echo "✅ Student submission.csv loaded."
+          else
+            echo "❌ Error: submission.csv not found in student PR."
+            exit 1
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -35,6 +53,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "Leaderboard Bot"
-          # CRITICAL: Added README.md here so the table actually updates on GitHub!
           git add scores.json README.md
-          git diff --quiet && git diff --staged --quiet || (git commit -m "🏆 Update leaderboard for ${{ github.event.pull_request.user.login }}" && git push)
+          # We push specifically to the main branch
+          git commit -m "🏆 Update leaderboard for ${{ github.event.pull_request.user.login }}" || echo "No changes to commit"
+          git push origin main
