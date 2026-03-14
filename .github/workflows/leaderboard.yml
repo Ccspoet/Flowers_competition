@@ -8,28 +8,36 @@ jobs:
     permissions:
       contents: write
     steps:
-      # 1. Get your main branch code (evaluate.py, scores.json, etc.)
       - name: Checkout Main
         uses: actions/checkout@v3
         with:
           ref: main
 
-      # 2. Download the student's version of the files
       - name: Checkout Student PR
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: student_submission
 
-      # 3. Replace the 'main' submission.csv with the 'student' one
+      - name: Debug - List files
+        run: |
+          echo "=== Root directory ==="
+          ls -la
+          echo "=== Student submission folder ==="
+          ls -la student_submission/ || echo "student_submission/ folder does not exist"
+
       - name: Load Student Data
         run: |
           if [ -f "student_submission/submission.csv" ]; then
             mkdir -p submissions
             cp student_submission/submission.csv ./submissions/submission.csv
             echo "Submission found and loaded."
+            echo "=== Verifying copy ==="
+            ls -la submissions/
           else
             echo "Error: submission.csv not found in the student's PR."
+            echo "Files found in student_submission:"
+            find student_submission/ -type f
             exit 1
           fi
 
