@@ -81,32 +81,39 @@ def run_grading(student_username):
         sys.exit(1)
 
     # 3. Smart Matching Logic
-# 3. Smart Matching Logic (Supporte 'flower_class' ou 'label')
-    
-    # Normalisation : Si l'étudiant a utilisé 'flower_class', on la renomme en 'label'
-    if 'flower_class' in sub_df.columns and 'label' not in sub_df.columns:
-        sub_df = sub_df.rename(columns={'flower_class': 'label'})
-
     if 'original_filename' in sub_df.columns:
+
         merged = pd.merge(truth_df, sub_df, on='original_filename', suffixes=('_true', '_pred'))
+
         y_true = merged['label_true']
+
         y_pred = merged['label_pred']
-        
+
     elif 'id' in sub_df.columns:
+
         merged = pd.merge(truth_df, sub_df, on='id', suffixes=('_true', '_pred'))
+
         y_true = merged['label_true']
+
         y_pred = merged['label_pred']
-        
+
     elif 'label' in sub_df.columns:
+
         if len(sub_df) != len(truth_df):
+
             print("Error: Label-only submission length mismatch.")
+
             sys.exit(1)
+
         y_true = truth_df['label']
+
         y_pred = sub_df['label']
-        
+
     else:
-        print("Error: Submission must have 'original_filename', 'id', 'label' or 'flower_class' columns.")
-        sys.exit(1)
+
+        print("Error: Submission must have 'original_filename', 'id', or 'label' columns.")
+
+        sys.exit(1) 
 
     # 4. Calculate Metrics
     f1 = f1_score(y_true, y_pred, average='macro')
