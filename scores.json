@@ -1,5 +1,10 @@
 [
     {
+        "user": "JHARILOVA",
+        "f1_macro": 0.9185,
+        "accuracy": 0.9221
+    },
+    {
         "user": "ahmedssow-ship-it",
         "f1_macro": 0.6229,
         "accuracy": 0.6407
